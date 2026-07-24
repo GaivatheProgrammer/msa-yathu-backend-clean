@@ -9,26 +9,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Atlas Connection
+// MongoDB Atlas Connection with timeout options
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://whitedaniel381_db_user:Gaivawhite2002@cluster0.sv0gy8y.mongodb.net/accommodation_finder?retryWrites=true&w=majority';
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 30000,
+  connectTimeoutMS: 30000,
+})
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err.message));
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  phone: { type: String, required: true },
-  userType: { type: String, enum: ['student', 'landlord'], required: true },
-  university: { type: String },
-  propertyInfo: { type: String },
-  createdAt: { type: Date, default: Date.now }
+// Handle MongoDB connection events
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB error:', err);
 });
 
-const User = mongoose.model('User', userSchema);
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -36,7 +35,11 @@ app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'MSA Yathu API is running!' });
+  res.json({ 
+    status: 'OK', 
+    message: 'MSA Yathu API is running!',
+    mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
 });
 
 // Complete hostels data for Malawi
@@ -52,8 +55,8 @@ const hostels = [
     roomType: "single",
     amenities: ["wifi", "security", "water_included", "furnished"],
     description: "Beautiful lodge with scenic views of Zomba Plateau. Walking distance to Chancellor College. Safe neighborhood with 24/7 security.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/unima-hostel-1.jpg"]
   },
@@ -68,8 +71,8 @@ const hostels = [
     roomType: "apartment",
     amenities: ["wifi", "utilities_included", "furnished", "parking", "security"],
     description: "Modern apartments perfect for graduate students. Fully furnished with private bathroom and kitchenette.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/unima-hostel-2.jpg"]
   },
@@ -84,8 +87,8 @@ const hostels = [
     roomType: "single",
     amenities: ["wifi", "security", "water_included", "furnished", "parking"],
     description: "Modern student residence near MUBAS campus. Secure environment with 24/7 security.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/mubas-hostel-1.jpg"]
   },
@@ -100,8 +103,8 @@ const hostels = [
     roomType: "shared",
     amenities: ["wifi", "water_included", "security", "furnished"],
     description: "Affordable shared accommodation within walking distance of Mzuzu University.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/mzuni-hostel-1.jpg"]
   },
@@ -116,8 +119,8 @@ const hostels = [
     roomType: "single",
     amenities: ["wifi", "utilities_included", "furnished", "security"],
     description: "Premium hostel right next to LUANAR campus.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/luanar-hostel-1.jpg"]
   },
@@ -132,8 +135,8 @@ const hostels = [
     roomType: "apartment",
     amenities: ["wifi", "utilities_included", "furnished", "parking", "security", "water_included"],
     description: "Luxury apartments near MUST campus. Mountain views and modern amenities.",
-    landlordName: "Gaiva",
-    landlordEmail: "Whitedaniel381@gmail.com",
+    landlordName: "Daniel White (Gaiva)",
+    landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
     photos: ["/images/must-hostel-1.jpg"]
   }
