@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Check if model already exists to prevent OverwriteModelError
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -50,7 +49,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Prevent OverwriteModelError
+// ✅ FIX: Check if model exists before creating
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 module.exports = User;
