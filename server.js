@@ -25,7 +25,7 @@ mongoose.connect(MONGODB_URI, {
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Health check - WORKING
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -134,13 +134,13 @@ const hostels = [
   }
 ];
 
-// ✅ LISTINGS ROUTE - FIXED
+// ✅ LISTINGS ROUTE
 app.get('/api/listings', (req, res) => {
   console.log('Listings endpoint called');
   res.json(hostels);
 });
 
-// ✅ SINGLE LISTING ROUTE - FIXED
+// ✅ SINGLE LISTING ROUTE
 app.get('/api/listings/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const hostel = hostels.find(h => h.id === id);
@@ -154,7 +154,7 @@ app.get('/api/listings/:id', (req, res) => {
 // ✅ ROOT ROUTE
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'MSA Yathu API',
+    message: 'MSA Yathu API is running!',
     endpoints: {
       health: '/api/health',
       listings: '/api/listings',
@@ -164,7 +164,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler - MUST BE LAST
+// ✅ 404 handler - MUST BE LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
