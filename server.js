@@ -14,8 +14,9 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://whitedaniel381_db_
 
 mongoose.connect(MONGODB_URI, {
   serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 30000,
+  socketTimeoutMS: 45000,
   connectTimeoutMS: 30000,
+  family: 4 // Use IPv4, skip trying IPv6
 })
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch(err => console.error('❌ MongoDB connection error:', err.message));

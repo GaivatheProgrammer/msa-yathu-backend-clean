@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Check if model already exists to prevent OverwriteModelError
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -34,10 +35,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.userType === 'landlord'; }
   },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'super_admin'],
+    default: 'user'
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Prevent OverwriteModelError
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+module.exports = User;
