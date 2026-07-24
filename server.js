@@ -9,32 +9,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Atlas Connection with timeout options
+// MongoDB Atlas Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://whitedaniel381_db_user:Gaivawhite2002@cluster0.sv0gy8y.mongodb.net/accommodation_finder?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
   connectTimeoutMS: 30000,
-  family: 4 // Use IPv4, skip trying IPv6
+  family: 4
 })
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch(err => console.error('❌ MongoDB connection error:', err.message));
-
-// Handle MongoDB connection events
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
-});
 
 // Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Health check
+// Health check - WORKING
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -43,7 +34,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Complete hostels data for Malawi
+// Complete hostels data
 const hostels = [
   {
     id: 1,
@@ -55,7 +46,7 @@ const hostels = [
     distanceFromCampus: "500m",
     roomType: "single",
     amenities: ["wifi", "security", "water_included", "furnished"],
-    description: "Beautiful lodge with scenic views of Zomba Plateau. Walking distance to Chancellor College. Safe neighborhood with 24/7 security.",
+    description: "Beautiful lodge with scenic views of Zomba Plateau.",
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
@@ -71,7 +62,7 @@ const hostels = [
     distanceFromCampus: "300m",
     roomType: "apartment",
     amenities: ["wifi", "utilities_included", "furnished", "parking", "security"],
-    description: "Modern apartments perfect for graduate students. Fully furnished with private bathroom and kitchenette.",
+    description: "Modern apartments perfect for graduate students.",
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
@@ -87,7 +78,7 @@ const hostels = [
     distanceFromCampus: "1km",
     roomType: "single",
     amenities: ["wifi", "security", "water_included", "furnished", "parking"],
-    description: "Modern student residence near MUBAS campus. Secure environment with 24/7 security.",
+    description: "Modern student residence near MUBAS campus.",
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
@@ -103,7 +94,7 @@ const hostels = [
     distanceFromCampus: "800m",
     roomType: "shared",
     amenities: ["wifi", "water_included", "security", "furnished"],
-    description: "Affordable shared accommodation within walking distance of Mzuzu University.",
+    description: "Affordable shared accommodation near Mzuzu University.",
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
@@ -135,7 +126,7 @@ const hostels = [
     distanceFromCampus: "800m",
     roomType: "apartment",
     amenities: ["wifi", "utilities_included", "furnished", "parking", "security", "water_included"],
-    description: "Luxury apartments near MUST campus. Mountain views and modern amenities.",
+    description: "Luxury apartments near MUST campus.",
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
@@ -143,12 +134,13 @@ const hostels = [
   }
 ];
 
-// Get all listings
+// ✅ LISTINGS ROUTE - FIXED
 app.get('/api/listings', (req, res) => {
+  console.log('Listings endpoint called');
   res.json(hostels);
 });
 
-// Get single listing by ID
+// ✅ SINGLE LISTING ROUTE - FIXED
 app.get('/api/listings/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const hostel = hostels.find(h => h.id === id);
@@ -159,7 +151,20 @@ app.get('/api/listings/:id', (req, res) => {
   }
 });
 
-// 404 handler
+// ✅ ROOT ROUTE
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'MSA Yathu API',
+    endpoints: {
+      health: '/api/health',
+      listings: '/api/listings',
+      register: '/api/auth/register',
+      login: '/api/auth/login'
+    }
+  });
+});
+
+// 404 handler - MUST BE LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
