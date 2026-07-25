@@ -179,7 +179,7 @@ app.get('/api/auth/me', async (req, res) => {
   }
 });
 
-// Get all users
+// Get all users (admin only)
 app.get('/api/auth/users', async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -195,11 +195,10 @@ app.get('/api/auth/users', async (req, res) => {
 });
 
 // ============================================
-// COMPLETE HOSTELS DATA - ALL UNIVERSITIES
+// HOSTELS DATA (In-Memory Storage)
 // ============================================
-const hostels = [
+let hostels = [
   // === PUBLIC UNIVERSITIES ===
-  // UNIMA - Zomba
   {
     id: 1,
     title: "Zomba Hills Student Lodge",
@@ -214,7 +213,8 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/unima-hostel-1.jpg"]
+    photos: ["/images/unima-hostel-1.jpg"],
+    createdAt: new Date('2024-01-01')
   },
   {
     id: 2,
@@ -230,10 +230,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/unima-hostel-2.jpg"]
+    photos: ["/images/unima-hostel-2.jpg"],
+    createdAt: new Date('2024-01-15')
   },
-  
-  // MZUNI - Mzuzu
   {
     id: 3,
     title: "MZUNI Student Lodge",
@@ -248,10 +247,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/mzuni-hostel-1.jpg"]
+    photos: ["/images/mzuni-hostel-1.jpg"],
+    createdAt: new Date('2024-02-01')
   },
-  
-  // LUANAR - Lilongwe
   {
     id: 4,
     title: "LUANAR Student Hostel",
@@ -266,10 +264,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/luanar-hostel-1.jpg"]
+    photos: ["/images/luanar-hostel-1.jpg"],
+    createdAt: new Date('2024-02-15')
   },
-  
-  // MUST - Thyolo
   {
     id: 5,
     title: "MUST Heights Apartments",
@@ -284,10 +281,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/must-hostel-1.jpg"]
+    photos: ["/images/must-hostel-1.jpg"],
+    createdAt: new Date('2024-03-01')
   },
-  
-  // MUBAS - Blantyre
   {
     id: 6,
     title: "MUBAS Student Residence",
@@ -302,10 +298,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/mubas-hostel-1.jpg"]
+    photos: ["/images/mubas-hostel-1.jpg"],
+    createdAt: new Date('2024-03-15')
   },
-  
-  // KUHeS - Blantyre
   {
     id: 7,
     title: "Medical Students Quarters - KUHeS",
@@ -320,11 +315,10 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/kuhes-hostel-1.jpg"]
+    photos: ["/images/kuhes-hostel-1.jpg"],
+    createdAt: new Date('2024-04-01')
   },
-
   // === PRIVATE UNIVERSITIES ===
-  // Catholic University - Lilongwe
   {
     id: 8,
     title: "Catholic University Guest House",
@@ -339,10 +333,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/catholic-hostel.jpg"]
+    photos: ["/images/catholic-hostel.jpg"],
+    createdAt: new Date('2024-04-15')
   },
-  
-  // Blantyre International University
   {
     id: 9,
     title: "BIU Student Lodge",
@@ -357,10 +350,9 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/biu-hostel.jpg"]
+    photos: ["/images/biu-hostel.jpg"],
+    createdAt: new Date('2024-05-01')
   },
-  
-  // Livingstonia University
   {
     id: 10,
     title: "Livingstonia University Hostel",
@@ -375,134 +367,21 @@ const hostels = [
     landlordName: "Daniel White (Gaiva)",
     landlordEmail: "whitedaniel381@gmail.com",
     landlordPhone: "0886606571",
-    photos: ["/images/livingstonia-hostel.jpg"]
-  },
-  
-  // Nkhoma University
-  {
-    id: 11,
-    title: "Nkhoma University Student Hostel",
-    price: 70000,
-    location: "Nkhoma, Lilongwe",
-    address: "Near Nkhoma Campus",
-    nearestUniversity: "Nkhoma University",
-    distanceFromCampus: "400m",
-    roomType: "shared",
-    amenities: ["wifi", "security", "water_included"],
-    description: "Affordable accommodation near Nkhoma University.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/nkhoma-hostel.jpg"]
-  },
-  
-  // Unicaf University
-  {
-    id: 12,
-    title: "Unicaf University Student Residence",
-    price: 90000,
-    location: "Lilongwe, Near Unicaf",
-    address: "Area 47, Lilongwe",
-    nearestUniversity: "Unicaf University Malawi",
-    distanceFromCampus: "1km",
-    roomType: "single",
-    amenities: ["wifi", "utilities_included", "furnished", "security", "parking"],
-    description: "Modern residence for Unicaf University students.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/unicaf-hostel.jpg"]
-  },
-
-  // === TEACHER TRAINING COLLEGES ===
-  {
-    id: 13,
-    title: "Domasi College Student Hostel",
-    price: 65000,
-    location: "Domasi, Zomba",
-    address: "Near Domasi College of Education",
-    nearestUniversity: "Domasi College of Education",
-    distanceFromCampus: "300m",
-    roomType: "shared",
-    amenities: ["wifi", "water_included", "security"],
-    description: "Affordable hostel for Domasi College students.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/domasi-hostel.jpg"]
-  },
-
-  // === TECHNICAL COLLEGES ===
-  {
-    id: 14,
-    title: "MATECO Student Hostel",
-    price: 60000,
-    location: "Lilongwe, Near MATECO",
-    address: "Area 25, Lilongwe",
-    nearestUniversity: "Malawi Technical College (MATECO)",
-    distanceFromCampus: "500m",
-    roomType: "shared",
-    amenities: ["wifi", "water_included", "security"],
-    description: "Budget-friendly hostel for MATECO students.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/mateco-hostel.jpg"]
-  },
-
-  // === NURSING COLLEGES ===
-  {
-    id: 15,
-    title: "St John of God Nursing Hostel",
-    price: 75000,
-    location: "Mzuzu, Near St John",
-    address: "Near St John of God Hospital",
-    nearestUniversity: "St John of God College of Health Sciences",
-    distanceFromCampus: "400m",
-    roomType: "single",
-    amenities: ["wifi", "security", "water_included", "furnished"],
-    description: "Comfortable hostel for nursing students.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/stjohn-hostel.jpg"]
-  },
-
-  // === OTHER INSTITUTIONS ===
-  {
-    id: 16,
-    title: "Malawi College of Accountancy Hostel",
-    price: 65000,
-    location: "Blantyre, Near MCA",
-    address: "Near Malawi College of Accountancy",
-    nearestUniversity: "Malawi College of Accountancy",
-    distanceFromCampus: "500m",
-    roomType: "shared",
-    amenities: ["wifi", "water_included", "security"],
-    description: "Affordable hostel for MCA students.",
-    landlordName: "Daniel White (Gaiva)",
-    landlordEmail: "whitedaniel381@gmail.com",
-    landlordPhone: "0886606571",
-    photos: ["/images/mca-hostel.jpg"]
+    photos: ["/images/livingstonia-hostel.jpg"],
+    createdAt: new Date('2024-05-15')
   }
 ];
 
 // ============================================
-// ROUTES
+// LISTINGS ROUTES (GET, POST, PUT, DELETE)
 // ============================================
 
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'MSA Yathu API is running!',
-    mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
-  });
-});
-
+// GET all listings
 app.get('/api/listings', (req, res) => {
   res.json(hostels);
 });
 
+// GET single listing by ID
 app.get('/api/listings/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const hostel = hostels.find(h => h.id === id);
@@ -511,6 +390,132 @@ app.get('/api/listings/:id', (req, res) => {
   } else {
     res.status(404).json({ error: 'Hostel not found' });
   }
+});
+
+// GET landlord's listings (by email)
+app.get('/api/listings/landlord/:email', (req, res) => {
+  const email = req.params.email;
+  const landlordListings = hostels.filter(h => h.landlordEmail === email);
+  res.json(landlordListings);
+});
+
+// POST - Create new listing (Landlord)
+app.post('/api/listings', async (req, res) => {
+  try {
+    const { 
+      title, price, location, address, nearestUniversity, 
+      distanceFromCampus, roomType, amenities, description,
+      landlordName, landlordEmail, landlordPhone 
+    } = req.body;
+
+    // Validate required fields
+    if (!title || !price || !location || !address || !nearestUniversity || !description) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All required fields must be filled' 
+      });
+    }
+
+    // Create new hostel
+    const newHostel = {
+      id: hostels.length + 1,
+      title,
+      price: parseInt(price),
+      location,
+      address,
+      nearestUniversity,
+      distanceFromCampus: distanceFromCampus || 'Not specified',
+      roomType: roomType || 'single',
+      amenities: amenities || [],
+      description,
+      landlordName: landlordName || 'Landlord',
+      landlordEmail: landlordEmail || 'landlord@example.com',
+      landlordPhone: landlordPhone || 'N/A',
+      photos: ['/images/placeholder.jpg'],
+      createdAt: new Date()
+    };
+
+    hostels.push(newHostel);
+    console.log('✅ New hostel added:', newHostel.title);
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Hostel listed successfully!',
+      hostel: newHostel
+    });
+  } catch (error) {
+    console.error('Error creating listing:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PUT - Update listing (Landlord)
+app.put('/api/listings/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const index = hostels.findIndex(h => h.id === id);
+    
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: 'Hostel not found' });
+    }
+
+    const updatedHostel = {
+      ...hostels[index],
+      ...req.body,
+      id: hostels[index].id,
+      price: req.body.price ? parseInt(req.body.price) : hostels[index].price,
+      updatedAt: new Date()
+    };
+
+    hostels[index] = updatedHostel;
+    console.log('✅ Hostel updated:', updatedHostel.title);
+
+    res.json({ 
+      success: true, 
+      message: 'Hostel updated successfully!',
+      hostel: updatedHostel
+    });
+  } catch (error) {
+    console.error('Error updating listing:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// DELETE - Delete listing (Landlord)
+app.delete('/api/listings/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const index = hostels.findIndex(h => h.id === id);
+    
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: 'Hostel not found' });
+    }
+
+    const deletedHostel = hostels[index];
+    hostels.splice(index, 1);
+    console.log('✅ Hostel deleted:', deletedHostel.title);
+
+    res.json({ 
+      success: true, 
+      message: 'Hostel deleted successfully!',
+      hostel: deletedHostel
+    });
+  } catch (error) {
+    console.error('Error deleting listing:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================
+// OTHER ROUTES
+// ============================================
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'MSA Yathu API is running!',
+    mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
 });
 
 app.get('/', (req, res) => {
@@ -540,4 +545,4 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`   Health: http://localhost:${PORT}/api/health`);
   console.log(`   Listings: http://localhost:${PORT}/api/listings`);
-});
+})
